@@ -186,7 +186,7 @@ sudo apt install 7zip android-sdk-libsparse-utils apt-utils base-files bash bash
 * img镜像位置
 
   ```bash
-  /home/build/build/output/cix_evb/images/linux-fs.sdcard
+  ${builddir}/output/cix_evb/images/linux-fs.sdcard
   ```
 
   
