@@ -1,5 +1,4 @@
-# minisforum-msr1-cix_p1-build
-铭凡ms-r1系统构建说明
+#  ms-r1编译流程
 
 ##  编译要求
 
@@ -169,14 +168,44 @@ sudo apt install 7zip android-sdk-libsparse-utils apt-utils base-files bash bash
 
   
 
+* 根据需要修改内核配置文件 `${builddir}/linux/arch/arm64/configs/cix.config`
+
+  例如添加官方论坛中[AMDGPU](https://github.com/minisforum-docs/MS-R1-Docs/issues/15)、[CIFS](https://github.com/minisforum-docs/MS-R1-Docs/issues/2)、[SQUASHFS_XZ](https://github.com/minisforum-docs/MS-R1-Docs/issues/4) 功能支持
+  
+  在 `${builddir}/linux/arch/arm64/configs/cix.config`任意位置添加以下文本
+  
+  ```ini
+  ############AMDGPU############
+  CONFIG_DRM=y
+  CONFIG_DRM_KMS_HELPER=y
+  CONFIG_DRM_AMD=y
+  CONFIG_DRM_AMDGPU=m
+  # CONFIG_DRM_RADEON=n #旧radeon驱动
+  
+  ############SQUASHFS_XZ############
+  CONFIG_SQUASHFS_XZ=y
+  
+  ############CIFS############
+  CONFIG_CIFS=m
+  CONFIG_CIFS_SMB2=y
+  CONFIG_CIFS_ACL=y
+  CONFIG_CIFS_XATTR=y
+  CONFIG_CIFS_POSIX=y
+  CONFIG_CIFS_UPCALL=y
+  CONFIG_CIFS_DFS_UPCALL=y
+  CONFIG_CIFS_FSCACHE=y
+  ```
+  
+  
+  
 * 开始正式编译
 
   ```bash
   sudo ln -sf /usr/bin/python3 /usr/bin/python
-  cd ${builddir} 
+  cd ${builddir}
   source ./build-scripts/envtool.sh #执行这条命令有报错，不用处理，我们主要使用这个脚本初始化环境变量。需要的依赖已经手动安装。
   updateres
-  ./build-scripts/build-all.sh -d release -p cix -f debian -h sky1_a0 -b evb -k rsa3072_product -m lkms -t optee -r axi-4G -s 1 -a 0 -x customer -o 1 -l disable -e disable -w open -K none build
+  ./build-scripts/build-all.sh -d release -p cix -f debian -h sky1_a0 -b evb -k rsa3072_product -m lkms -t optee -r axi-4G -s 1 -a 1 -x customer -o 1 -l disable -e disable -w open -K none build
   ```
 
 
