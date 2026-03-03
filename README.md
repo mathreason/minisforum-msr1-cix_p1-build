@@ -13,9 +13,9 @@ sudo apt install 7zip android-sdk-libsparse-utils apt-utils base-files bash bash
 
 
 
-##  下载代码
 
-* 设置环境变量，用于创建编译目录，最好不要使用已存在的目录。可根据实际需要修改目录名，执行构建时不要退出、切换终端
+## 设置环境变量
+* 用于创建编译目录，最好不要使用已存在的目录。可根据实际需要修改目录名，执行构建时不要退出、切换终端
 
   ```bash
   export builddirname='build' #默认创建在"~/build"，根据实际情况修改值，不影响后续执行
@@ -23,9 +23,11 @@ sudo apt install 7zip android-sdk-libsparse-utils apt-utils base-files bash bash
   mkdir -p ${builddir}
   ```
 
-* 同步代码
 
-  如果一次性执行下列所有命令，出错后任会继续执行导致后续构建失败(git clone比较容易出现错误)，建议分段执行或创建成脚本执行。
+
+## 下载编译资源
+
+* 如果一次性执行下列所有命令，出错后任会继续执行导致后续构建失败(git clone比较容易出现错误)，建议分段执行或创建成脚本执行。
 
   ```bash
   mkdir -p ${builddir}
@@ -150,30 +152,17 @@ sudo apt install 7zip android-sdk-libsparse-utils apt-utils base-files bash bash
   7z x ./cix_ext.7z.001
   ```
 
-##  构建镜像
 
-* 修改`${builddir}/build-scripts/build-kernel.sh` 的71、72行：
 
-  ```bash
-      rm -f "${PATH_ROOT}"/linux-*
-      rm -f "${PATH_OUT}"/linux-*
-  ```
+##  修改内核配置文件(可选)
 
-  修改为
-
-  ```bash
-      rm -rf "${PATH_ROOT}"/linux-*
-      rm -rf "${PATH_OUT}"/linux-*
-  ```
-
-  
-
+### 自定义修改
 * 根据需要修改内核配置文件 `${builddir}/linux/arch/arm64/configs/cix.config`
 
   例如添加官方论坛中[AMDGPU](https://github.com/minisforum-docs/MS-R1-Docs/issues/15)、[CIFS](https://github.com/minisforum-docs/MS-R1-Docs/issues/2)、[SQUASHFS_XZ](https://github.com/minisforum-docs/MS-R1-Docs/issues/4) 功能支持
-  
+
   在 `${builddir}/linux/arch/arm64/configs/cix.config`任意位置添加以下文本
-  
+
   ```ini
   ############AMDGPU############
   CONFIG_DRM=y
@@ -195,9 +184,39 @@ sudo apt install 7zip android-sdk-libsparse-utils apt-utils base-files bash bash
   CONFIG_CIFS_DFS_UPCALL=y
   CONFIG_CIFS_FSCACHE=y
   ```
+
+### 使用预定义内核配置文件
+
+* 使用`kconfig/merge.conf` 内核配置文件. 该文件是官方内核配置文件与debian 12.13内核配置合并后，去除x86、intel、x64、ia32、amd相关配置得出的. 
+
+  `kconfig/merge.conf`配置文件包含了`自定义修改` 中所有配置. 这部分配置在`# --- merged from B: keys absent in A ---` 行之前.
+
+  `kconfig/merge.conf` 配置文件`# --- merged from B: keys absent in A ---`之后的所有行，都为新加的内核配置.
+
+  ```bash
+  cp kconfig/merge.conf $builddir/linux/arch/arm64/configs/cix.config
+  ```
+
   
+
+##  构建镜像
+
+* 修改`${builddir}/build-scripts/build-kernel.sh` 的71、72行：
+
+  ```bash
+      rm -f "${PATH_ROOT}"/linux-*
+      rm -f "${PATH_OUT}"/linux-*
+  ```
+
+  修改为
+
+  ```bash
+      rm -rf "${PATH_ROOT}"/linux-*
+      rm -rf "${PATH_OUT}"/linux-*
+  ```
+
   
-  
+
 * 开始正式编译
 
   ```bash
